@@ -5,6 +5,7 @@ import com.example.banking_app.entity.Account;
 import com.example.banking_app.mapper.AccountMapper;
 import com.example.banking_app.repository.AccountRepository;
 import com.example.banking_app.service.AccountService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,6 +74,33 @@ public class AccountServiceImpl implements AccountService {
         Account account =  accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account does not exists"));
 
         accountRepository.deleteById(id);
+
+    }
+
+    @Override
+    @Transactional
+    public void transferMoney(Long fromAccountId, Long toAccountId, Double amount) {
+        if(fromAccountId == null ||
+                toAccountId == null ||
+                amount == null){
+
+            throw new RuntimeException(
+                    "Transfer data missing");
+        }
+
+        Account sender = accountRepository.findById(fromAccountId).orElseThrow(()-> new RuntimeException("Sender not found"));
+        Account receiver = accountRepository.findById(toAccountId).orElseThrow(()-> new RuntimeException("Receiver not found"));
+        if(sender.getBalance()<amount){
+            throw new RuntimeException("Insufficient balance");
+        }
+
+        sender.setBalance(sender.getBalance()-amount);
+
+        accountRepository.save(sender);
+
+        receiver.setBalance(receiver.getBalance()+amount);
+
+        accountRepository.save(receiver);
 
     }
 }
