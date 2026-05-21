@@ -2,12 +2,15 @@ package com.example.banking_app.service.impl;
 
 import com.example.banking_app.dto.AccountDto;
 import com.example.banking_app.entity.Account;
+import com.example.banking_app.entity.Transaction;
 import com.example.banking_app.mapper.AccountMapper;
 import com.example.banking_app.repository.AccountRepository;
+import com.example.banking_app.repository.TransactionRepository;
 import com.example.banking_app.service.AccountService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,10 +18,13 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService {
 
     private AccountRepository accountRepository;
+    private TransactionRepository transactionRepository;
 
-    public AccountServiceImpl(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public AccountServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository){
+        this.accountRepository=accountRepository;
+        this.transactionRepository=transactionRepository;
     }
+    
 
     @Override
     public AccountDto createAccount(AccountDto accountDto)
@@ -102,5 +108,31 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.save(receiver);
 
+        //save transaction during transfer
+        Transaction senderTxn = new Transaction();
+        senderTxn.setAccountId(fromAccountId);
+        senderTxn.setAmount(amount);
+        senderTxn.setType("TRANSFER_SENT");
+        senderTxn.setStatus("SUCCESS");
+        senderTxn.setTimestamp(LocalDateTime.now());
+
+        Transaction receiverTxn = new Transaction();
+        receiverTxn.setAccountId(toAccountId);
+        receiverTxn.setAmount(amount);
+        receiverTxn.setType("TRANSFER_RECEIVED");
+        receiverTxn.setStatus("SUCCESS");
+        receiverTxn.setTimestamp(LocalDateTime.now());
+
+        transactionRepository.save(senderTxn);
+        transactionRepository.save(receiverTxn);
+
+
+    }
+
+    // Inject Repository into accountserviceimpl
+
+    @Override
+    public List<Transaction> getTransactions(Long accountId){
+        return transactionRepository.findByAccountId(accountId);
     }
 }

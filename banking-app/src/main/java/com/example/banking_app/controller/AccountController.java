@@ -2,6 +2,7 @@ package com.example.banking_app.controller;
 
 import com.example.banking_app.dto.AccountDto;
 import com.example.banking_app.dto.TransferDto;
+import com.example.banking_app.entity.Transaction;
 import com.example.banking_app.service.AccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,6 +83,13 @@ public class AccountController {
         );
 
         return ResponseEntity.ok("Transfer successful");
+    }
+
+    //api to fetch transaction history
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<List<Transaction>> getTransactions(@PathVariable Long id){
+        return ResponseEntity.ok(
+                accountService.getTransactions(id));
     }
 
 }
