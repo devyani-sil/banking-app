@@ -3,6 +3,7 @@ package com.example.banking_app.service.impl;
 import com.example.banking_app.dto.AccountDto;
 import com.example.banking_app.entity.Account;
 import com.example.banking_app.entity.Transaction;
+import com.example.banking_app.exception.ResourceNotFoundException;
 import com.example.banking_app.mapper.AccountMapper;
 import com.example.banking_app.repository.AccountRepository;
 import com.example.banking_app.repository.TransactionRepository;
@@ -55,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account does not exists"));
 
         if(account.getBalance() < amount){
-            throw new RuntimeException("Insufficient amount");
+            throw new ResourceNotFoundException("Insufficient amount");
         }
 
         double total = account.getBalance() - amount;
@@ -90,14 +91,14 @@ public class AccountServiceImpl implements AccountService {
                 toAccountId == null ||
                 amount == null){
 
-            throw new RuntimeException(
+            throw new ResourceNotFoundException(
                     "Transfer data missing");
         }
 
         Account sender = accountRepository.findById(fromAccountId).orElseThrow(()-> new RuntimeException("Sender not found"));
         Account receiver = accountRepository.findById(toAccountId).orElseThrow(()-> new RuntimeException("Receiver not found"));
         if(sender.getBalance()<amount){
-            throw new RuntimeException("Insufficient balance");
+            throw new ResourceNotFoundException("Insufficient balance");
         }
 
         sender.setBalance(sender.getBalance()-amount);
