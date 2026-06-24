@@ -6,6 +6,7 @@ import com.example.banking_app.dto.RegisterDto;
 import com.example.banking_app.entity.Role;
 import com.example.banking_app.entity.RoleName;
 import com.example.banking_app.entity.User;
+import com.example.banking_app.exception.ResourceNotFoundException;
 import com.example.banking_app.repository.RoleRepository;
 import com.example.banking_app.repository.UserRepository;
 import com.example.banking_app.security.JwtTokenProvider;
@@ -44,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
         // Check email already exists
         if(userRepository.existsByEmail(registerDto.getEmail())){
 
-            throw new RuntimeException("Email already exists");
+            throw new ResourceNotFoundException("Email already exists");
         }
 
         User user = new User();
@@ -61,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
         // Default role = USER
         Role role = roleRepository.findByName(RoleName.ROLE_USER)
                 .orElseThrow(() ->
-                        new RuntimeException("Role not found"));
+                        new ResourceNotFoundException("Role not found"));
 
         user.setRoles(Set.of(role));
 
@@ -83,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
                 loginDto.getPassword(),
                 user.getPassword())){
 
-            throw new RuntimeException("Invalid credentials");
+            throw new ResourceNotFoundException("Invalid credentials");
         }
 
         List<String> roles = user.getRoles()
