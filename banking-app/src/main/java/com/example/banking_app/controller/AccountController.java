@@ -4,6 +4,7 @@ import com.example.banking_app.dto.AccountDto;
 import com.example.banking_app.dto.TransferDto;
 import com.example.banking_app.entity.Transaction;
 import com.example.banking_app.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class AccountController {
 
     //Add account rest api
     @PostMapping
-    public ResponseEntity<AccountDto> addAccount(@RequestBody AccountDto accountDto) {
+    public ResponseEntity<AccountDto> addAccount(@Valid @RequestBody AccountDto accountDto) {
         return new ResponseEntity<> (accountService.createAccount(accountDto), HttpStatus.CREATED);
     }
 
@@ -69,7 +70,7 @@ public class AccountController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<String> transferMoney(
+    public ResponseEntity<String> transferMoney(@Valid
             @RequestBody TransferDto request){
 
         System.out.println("FROM: " + request.getFromAccountId());
